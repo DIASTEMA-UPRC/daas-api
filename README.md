@@ -6,8 +6,8 @@ This project is inteded to by used by [the Diastema orchestrator](https://github
 
 ### Prerequisites
 + Docker
++ RabbitMQ
 + Mongo
-+ Redis
 + Kafka
 
 ### How to Build
