@@ -1,6 +1,10 @@
 import json
+import requests
+import pandas as pd
 
 from flask import Blueprint, request
+from urllib.request import HTTPBasicAuthHandler
+from io import StringIO
 
 from utils.db import get_db_connection
 from utils.message import send_message
@@ -81,3 +85,42 @@ def data_ingesting_job(job):
         return "Job ID doesn't exist", 404
 
     return match["result"], 200
+
+
+@data_ingesting.route("/test", methods=["POST"])
+def data_ingesting_test():
+    data = request.data
+
+    try:
+        data = json.loads(data)
+    except:
+        return "Invalid JSON", 400
+
+    url = data.get("url")
+    # method = data.get("method")
+    token = data.get("token")
+    separator = data.get("separator")
+    first_line_labels = data.get("first-line-labels")
+    labels = data.get("labels")
+
+    if token == "":
+        auth = HTTPBasicAuthHandler("apikey", token)
+    else:
+        auth = None
+
+    df = pd.DataFrame()
+
+    try:
+        with requests.get(url, auth=auth) as r:
+            r.raise_for_status()
+            file_data = r.content.decode("utf-8")
+            
+            if first_line_labels:
+                df = pd.read_csv(StringIO(file_data), sep=separator)
+            else:
+                df = pd.read_csv(StringIO(file_data), sep=separator, header=None, names=labels)
+            
+    except Exception as e:
+        return str(e), 400
+
+    return df.head(10).to_html(), 200
