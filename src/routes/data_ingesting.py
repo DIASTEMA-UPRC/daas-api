@@ -119,7 +119,6 @@ def data_ingesting_test():
                 df = pd.read_csv(StringIO(file_data), sep=separator)
             else:
                 df = pd.read_csv(StringIO(file_data), sep=separator, header=None, names=labels)
-            
     except Exception as e:
         return str(e), 400
 
