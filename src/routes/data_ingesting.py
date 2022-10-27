@@ -51,24 +51,49 @@ def index():
 
 @data_ingesting.route("/progress", methods=["GET"])
 def data_ingesting_progress():
-    job = request.args.get("id")
-
-    if not job:
-        return "Missing ID argument", 400
+    result = {}
+    code = 200
 
     try:
-        db = get_db_connection()
-    except:
-        return "Internal server error", 500
+        job = request.args.get("id")
 
-    collection = db["Diastema"]["DataIngesting"]
-    match = collection.find_one({"job-id": job})
-    db.close()
+        if not job:
+            raise Exception("Missing ID argument")
 
-    if not match:
-        return "Job ID doesn't exist", 404
+        try:
+            db = get_db_connection()
+        except:
+            raise Exception("Failed to connect to database")
 
-    return match["status"], 200
+        collection = db["Diastema"]["DataIngesting"]
+        match = collection.find_one({"job-id": job})
+        db.close()
+
+        if not match:
+            raise Exception("Job ID doesn't exist")
+
+        status = match["status"]
+        
+        if status == "error":
+            result = {
+                "job-id": job,
+                "status": status,
+                "message": match["message"]
+            }
+            code = 400
+        else:
+            result = {
+                "job-id": job,
+                "status": status
+            }
+    except Exception as ex:
+        result = {
+            "status": "error",
+            "message": str(ex)
+        }
+        code = 400
+
+    return result, code
 
 
 @data_ingesting.route("/<job>", methods=["GET"])
