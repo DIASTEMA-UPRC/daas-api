@@ -38,16 +38,3 @@ services:
     ports:
       - 9092:9092
     restart: always
-  app:
-    container_name: daas-api
-    build:
-      context: .
-    image: daas-api:latest
-    ports:
-     - 5000:5000
-    depends_on:
-      - rabbitmq
-      - mongo
-      - zookeeper
-      - kafka
-    restart: always

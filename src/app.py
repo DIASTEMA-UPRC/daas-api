@@ -6,6 +6,7 @@ from routes.data_ingesting import data_ingesting
 from routes.data_cleaning import data_cleaning
 from routes.data_sink import data_sink
 from routes.join import join
+from routes.visualization import visualization
 
 # Get Flask environment variables
 FLASK_HOST = os.getenv("FLASK_HOST", "0.0.0.0")
@@ -18,6 +19,7 @@ app.register_blueprint(data_ingesting, url_prefix="/data-ingesting")
 app.register_blueprint(data_cleaning, url_prefix="/data-cleaning")
 app.register_blueprint(data_sink, url_prefix="/data-sink")
 app.register_blueprint(join, url_prefix="/join")
+app.register_blueprint(visualization, url_prefix="/visualization")
 
 
 # Index route
