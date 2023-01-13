@@ -5,10 +5,10 @@ from flask import Blueprint, request
 from utils.db import get_db_connection
 from utils.message import send_message
 
-join = Blueprint("join", __name__)
+visualization = Blueprint("visualization", __name__)
 
 
-@join.route("/", methods=["POST"])
+@visualization.route("/", methods=["POST"])
 def index():
     data = request.data
 
@@ -22,26 +22,26 @@ def index():
     except:
         return "Internal server error", 500
 
-    collection = db["Diastema"]["Join"]
+    collection = db["Diastema"]["Visualization"]
     match = collection.find_one({"job-id": job})
 
     if match:
         db.close()
         return "Job ID already exists", 400
 
-    collection.insert_one({ "job-id": job, "status": "progress", "result": "" })
+    collection.insert_one({ "job-id": job, "status": "progress", "result": "completed" })
     db.close()
 
     try:
-        send_message("join", data)
+        send_message("visualization", data)
     except:
-        return "Failed to submit Join job", 500
+        return "Failed to submit Visualization job", 500
 
-    return "Join job submitted", 200
+    return "JoVisualizationin job submitted", 200
 
 
-@join.route("/progress", methods=["GET"])
-def join_progress():
+@visualization.route("/progress", methods=["GET"])
+def visualization_progress():
     result = {}
     code = 200
 
@@ -56,7 +56,7 @@ def join_progress():
         except:
             raise Exception("Failed to connect to database")
 
-        collection = db["Diastema"]["Join"]
+        collection = db["Diastema"]["Visualization"]
         match = collection.find_one({"job-id": job})
         db.close()
 
@@ -87,17 +87,17 @@ def join_progress():
     return result, code
 
 
-@join.route("/<job>", methods=["GET"])
-def join_job(job):
+@visualization.route("/<job>", methods=["GET"])
+def visualization_job(job):
     try:
         db = get_db_connection()
     except:
         return "Internal server error", 500
 
-    collection = db["Diastema"]["Join"]
+    collection = db["Diastema"]["Visualization"]
     match = collection.find_one({"job-id": job})
 
     if not match:
         return "Job ID doesn't exist", 404
 
-    return match["result"], 200
+    return "completed", 200
